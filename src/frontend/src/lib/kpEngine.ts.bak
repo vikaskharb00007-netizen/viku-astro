@@ -75,8 +75,8 @@ const KP_OLD_CALIB_POINTS: CalibPoint[] = [
       Jupiter: 0.008889, // +0.53'
       Venus: 0.136111, // +8.17' (Venus in Sagittarius - VSOP87 truncation)
       Saturn: -0.006111, // -0.37'
-      Rahu: 0.078056, // +4'41" -- residual measured vs Predict For Me (app was behind by 4'41")
-      Ketu: 0.078056,
+      Rahu: 0.0, // universal correction handles this
+      Ketu: 0.0,
     },
   },
   {
@@ -125,38 +125,6 @@ const KP_OLD_CALIB_POINTS: CalibPoint[] = [
       Saturn: -0.002222, // -0.13'
       Rahu: 0.058056, // +3'29" -- residual after universal -3.9' correction
       Ketu: 0.058056,
-    },
-  },
-  {
-    // 28-08-2017 15:50 IST (UT 10:20) Jind -- JD 2457993.9306
-    // Residuals measured vs Predict For Me: Mars -4'55" (app too high), Rahu/Ketu +4'38" (app too low)
-    jd: 2457993.9306,
-    offsets: {
-      Sun: 0.0,
-      Moon: 0.0,
-      Mars: -0.081944, // -4'55" -- Mars in Leo at ~1°, VSOP87 truncation residual
-      Mercury: 0.0,
-      Jupiter: 0.0,
-      Venus: 0.0,
-      Saturn: 0.0,
-      Rahu: 0.077222, // +4'38" -- true node residual for this epoch
-      Ketu: 0.077222,
-    },
-  },
-  {
-    // 12-02-2022 15:50 IST (UT 10:20) Jind -- JD 2459622.9306
-    // Residuals measured vs Predict For Me: Mars -8'04", Venus +9'22", Rahu/Ketu -4'03"
-    jd: 2459622.9306,
-    offsets: {
-      Sun: 0.0,
-      Moon: 0.0,
-      Mars: -0.134444, // -8'04" -- Mars in Sagittarius ~19°, VSOP87 truncation residual
-      Mercury: 0.0,
-      Jupiter: 0.0,
-      Venus: 0.156111, // +9'22" -- Venus in Sagittarius, VSOP87 residual
-      Saturn: 0.0,
-      Rahu: -0.0675, // -4'03" -- true node residual for this epoch (opposite direction to 2017)
-      Ketu: -0.0675,
     },
   },
 ];

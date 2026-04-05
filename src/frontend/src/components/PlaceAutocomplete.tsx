@@ -20,6 +20,45 @@ interface Props {
   id?: string;
 }
 
+/**
+ * Resolve the correct UTC offset (in decimal hours) from an IANA timezone string.
+ * Uses the Intl.DateTimeFormat API which is available in all modern browsers.
+ * Example: "Asia/Kolkata" -> 5.5, "America/New_York" -> -5 or -4 (DST-aware for the epoch date).
+ * Falls back to longitude-based approximation if the API is unavailable.
+ */
+function getUtcOffsetFromIANA(ianaTimezone: string, longitude: number): string {
+  try {
+    // Use a fixed reference date (no DST confusion for Indian charts)
+    // We use the date Jan 1 2000 just to get the standard UTC offset.
+    // For accurate historical charts, we use the *birth date* moment.
+    // Since we don't have it here, we use the timezone's Jan 1 2000 offset
+    // which is correct for non-DST zones (India, most of Asia).
+    const refDate = new Date(Date.UTC(2000, 0, 1, 12, 0, 0));
+    const formatter = new Intl.DateTimeFormat("en", {
+      timeZone: ianaTimezone,
+      timeZoneName: "shortOffset",
+    });
+    const parts = formatter.formatToParts(refDate);
+    const tzPart = parts.find((p) => p.type === "timeZoneName");
+    if (tzPart) {
+      // tzPart.value is like "GMT+5:30" or "GMT-5" or "GMT+9"
+      const match = tzPart.value.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
+      if (match) {
+        const sign = match[1] === "+" ? 1 : -1;
+        const hours = Number.parseInt(match[2], 10);
+        const minutes = Number.parseInt(match[3] ?? "0", 10);
+        const offset = sign * (hours + minutes / 60);
+        return offset.toFixed(2);
+      }
+    }
+  } catch {
+    // Intl not available or bad timezone string
+  }
+  // Fallback: longitude-based approximation (nearest 0.5 hour)
+  const rawTz = longitude / 15;
+  return (Math.round(rawTz * 2) / 2).toFixed(1);
+}
+
 export default function PlaceAutocomplete({
   value,
   onChange,
@@ -77,9 +116,8 @@ export default function PlaceAutocomplete({
   function handleSelect(r: GeoResult) {
     const lat = r.latitude.toFixed(4);
     const lon = r.longitude.toFixed(4);
-    // Approximate UTC offset from longitude (nearest 0.5 hour)
-    const rawTz = r.longitude / 15;
-    const tz = (Math.round(rawTz * 2) / 2).toFixed(1);
+    // Use IANA timezone string for accurate UTC offset (fixes India IST = +5.5, not +5.0)
+    const tz = getUtcOffsetFromIANA(r.timezone, r.longitude);
     const displayName = [r.name, r.admin1, r.country]
       .filter(Boolean)
       .join(", ");
